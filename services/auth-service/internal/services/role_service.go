@@ -2,38 +2,33 @@ package services
 
 import (
 	"auth-service/internal/models"
-
-	"gorm.io/gorm"
+	"auth-service/internal/repositories"
 )
 
 type RoleService struct {
-	db *gorm.DB
+	repo *repositories.RoleRepository
 }
 
-func NewRoleService(db *gorm.DB) *RoleService {
-	return &RoleService{db: db}
+func NewRoleService(repo *repositories.RoleRepository) *RoleService {
+	return &RoleService{repo: repo}
 }
 
-// 📌 Get All Roles (for Register dropdown)
-func (s *RoleService) GetRoles() ([]models.Role, error) {
-	var roles []models.Role
-	err := s.db.Find(&roles).Error
-	return roles, err
-}
-
-// 📌 Find Role by Name (used in Register & Login)
-func (s *RoleService) FindByName(name string) (*models.Role, error) {
-	var role models.Role
-	err := s.db.Where("name = ?", name).First(&role).Error
-	return &role, err
-}
-
-// 📌 Create Role (if needed in future Admin Panel)
+// ➕ Create role
 func (s *RoleService) CreateRole(role *models.Role) error {
-	return s.db.FirstOrCreate(role, models.Role{Name: role.Name}).Error
+	return s.repo.Create(role)
 }
 
-// 📌 Delete Role
+// 🔍 Get all roles
+func (s *RoleService) GetRoles() ([]models.Role, error) {
+	return s.repo.GetAll()
+}
+
+// 🔍 Find by name
+func (s *RoleService) FindByName(name string) (*models.Role, error) {
+	return s.repo.FindByName(name)
+}
+
+// ❌ Delete role
 func (s *RoleService) DeleteRole(id string) error {
-	return s.db.Delete(&models.Role{}, "id = ?", id).Error
+	return s.repo.Delete(id)
 }

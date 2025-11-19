@@ -2,26 +2,23 @@ package services
 
 import (
 	"auth-service/internal/models"
-
-	"gorm.io/gorm"
+	"auth-service/internal/repositories"
 )
 
 type StudentService struct {
-	db *gorm.DB
+	repo *repositories.StudentRepository
 }
 
-func NewStudentService(db *gorm.DB) *StudentService {
-	return &StudentService{db}
+func NewStudentService(repo *repositories.StudentRepository) *StudentService {
+	return &StudentService{repo: repo}
 }
 
-func (s *StudentService) CreateStudent(su *models.Student) error {
-	return s.db.Create(su).Error
+// Create Student
+func (s *StudentService) CreateStudent(student *models.Student) error {
+	return s.repo.Create(student)
 }
 
+// Get students by batch
 func (s *StudentService) GetByBatch(batchID string) ([]models.Student, error) {
-	var students []models.Student
-	err := s.db.Where("batch_id = ?", batchID).
-		Preload("User").
-		Find(&students).Error
-	return students, err
+	return s.repo.FindByBatch(batchID)
 }

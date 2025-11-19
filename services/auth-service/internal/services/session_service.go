@@ -2,25 +2,28 @@ package services
 
 import (
 	"auth-service/internal/models"
-
-	"gorm.io/gorm"
+	"auth-service/internal/repositories"
 )
 
 type SessionService struct {
-	db *gorm.DB
+	repo *repositories.SessionRepository
 }
 
-func NewSessionService(db *gorm.DB) *SessionService {
-	return &SessionService{db: db}
+func NewSessionService(repo *repositories.SessionRepository) *SessionService {
+	return &SessionService{repo: repo}
 }
 
+// Create new session
 func (s *SessionService) CreateSession(session *models.Session) error {
-	return s.db.Create(session).Error
+	return s.repo.Create(session)
 }
 
-// Single device login (student only)
-func (s *SessionService) InvalidateOldSessions(userID string) {
-	s.db.Model(&models.Session{}).
-		Where("user_id = ? AND is_active = true", userID).
-		Updates(map[string]interface{}{"is_active": false})
+// Invalidate all previous sessions (single device login)
+func (s *SessionService) InvalidateAllSessions(userID string) {
+	s.repo.InvalidateAll(userID)
+}
+
+// Deactivate only current session (logout)
+func (s *SessionService) DeactivateSession(userID, token string) {
+	s.repo.DeactivateSession(userID, token)
 }

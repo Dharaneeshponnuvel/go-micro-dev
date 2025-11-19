@@ -2,24 +2,26 @@ package services
 
 import (
 	"auth-service/internal/models"
-
-	"gorm.io/gorm"
+	"auth-service/internal/repositories"
 )
 
 type BatchYearService struct {
-	db *gorm.DB
+	repo *repositories.BatchYearRepository
 }
 
-func NewBatchYearService(db *gorm.DB) *BatchYearService {
-	return &BatchYearService{db}
+// 💡 Always inject repository, not DB
+func NewBatchYearService(repo *repositories.BatchYearRepository) *BatchYearService {
+	return &BatchYearService{repo: repo}
 }
 
 func (s *BatchYearService) Create(batchYear *models.BatchYear) error {
-	return s.db.Create(batchYear).Error
+	return s.repo.Create(batchYear)
 }
 
 func (s *BatchYearService) GetInstitutionBatchYears(instID string) ([]models.BatchYear, error) {
-	var years []models.BatchYear
-	err := s.db.Where("institution_id = ?", instID).Find(&years).Error
-	return years, err
+	return s.repo.GetByInstitution(instID)
+}
+
+func (s *BatchYearService) GetByID(id string) (*models.BatchYear, error) {
+	return s.repo.GetByID(id)
 }

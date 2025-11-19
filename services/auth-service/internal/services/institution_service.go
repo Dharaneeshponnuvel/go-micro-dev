@@ -2,24 +2,21 @@ package services
 
 import (
 	"auth-service/internal/models"
-
-	"gorm.io/gorm"
+	"auth-service/internal/repositories"
 )
 
 type InstitutionService struct {
-	db *gorm.DB
+	repo *repositories.InstitutionRepository
 }
 
-func NewInstitutionService(db *gorm.DB) *InstitutionService {
-	return &InstitutionService{db}
+func NewInstitutionService(repo *repositories.InstitutionRepository) *InstitutionService {
+	return &InstitutionService{repo: repo}
 }
 
 func (s *InstitutionService) CreateInstitution(inst *models.Institution) error {
-	return s.db.Create(inst).Error
+	return s.repo.Create(inst)
 }
 
 func (s *InstitutionService) GetByID(id string) (*models.Institution, error) {
-	var inst models.Institution
-	err := s.db.First(&inst, "id = ?", id).Error
-	return &inst, err
+	return s.repo.FindByID(id)
 }

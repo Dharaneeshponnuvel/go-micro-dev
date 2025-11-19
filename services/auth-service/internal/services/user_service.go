@@ -2,36 +2,33 @@ package services
 
 import (
 	"auth-service/internal/models"
-
-	"gorm.io/gorm"
+	"auth-service/internal/repositories"
 )
 
-type UserService struct{ db *gorm.DB }
+type UserService struct {
+	repo *repositories.UserRepository
+}
 
-func NewUserService(db *gorm.DB) *UserService {
-	return &UserService{db: db}
+func NewUserService(repo *repositories.UserRepository) *UserService {
+	return &UserService{repo: repo}
 }
 
 func (s *UserService) CreateUser(user *models.User) error {
-	return s.db.Create(user).Error
+	return s.repo.Create(user)
 }
 
 func (s *UserService) UpdateUser(user *models.User) error {
-	return s.db.Save(user).Error
+	return s.repo.Update(user)
 }
 
 func (s *UserService) DeleteUser(id string) error {
-	return s.db.Delete(&models.User{}, "id = ?", id).Error
+	return s.repo.Delete(id)
 }
 
 func (s *UserService) FindByEmail(email string) (*models.User, error) {
-	var user models.User
-	err := s.db.Preload("Role").Where("email = ?", email).First(&user).Error
-	return &user, err
+	return s.repo.FindByEmail(email)
 }
 
 func (s *UserService) FindByID(id string) (*models.User, error) {
-	var user models.User
-	err := s.db.Preload("Role").Where("id = ?", id).First(&user).Error
-	return &user, err
+	return s.repo.FindByID(id)
 }
