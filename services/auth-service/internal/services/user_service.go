@@ -6,9 +6,7 @@ import (
 	"gorm.io/gorm"
 )
 
-type UserService struct {
-	db *gorm.DB
-}
+type UserService struct{ db *gorm.DB }
 
 func NewUserService(db *gorm.DB) *UserService {
 	return &UserService{db: db}
@@ -16,6 +14,14 @@ func NewUserService(db *gorm.DB) *UserService {
 
 func (s *UserService) CreateUser(user *models.User) error {
 	return s.db.Create(user).Error
+}
+
+func (s *UserService) UpdateUser(user *models.User) error {
+	return s.db.Save(user).Error
+}
+
+func (s *UserService) DeleteUser(id string) error {
+	return s.db.Delete(&models.User{}, "id = ?", id).Error
 }
 
 func (s *UserService) FindByEmail(email string) (*models.User, error) {
